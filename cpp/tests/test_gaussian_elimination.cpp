@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "GaussianElimination.h"
-#include "tests/test_helpers.h"
+#include "test_helpers.h"
 
 namespace {
 

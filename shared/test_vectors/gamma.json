@@ -1,0 +1,47 @@
+{
+  "tolerance": 1.0,
+  "cases": [
+    {
+      "name": "sampled_energy",
+      "al_frac": 0.0,
+      "energy": 3.125,
+      "expected": 251.18864315095797
+    },
+    {
+      "name": "energy_interpolation_gan",
+      "al_frac": 0.0,
+      "energy": 3.0,
+      "expected": 209.61799924531257
+    },
+    {
+      "name": "mole_fraction_interpolation",
+      "al_frac": 0.055,
+      "energy": 3.0,
+      "expected": 310.96698698744046
+    },
+    {
+      "name": "asymptotic_high_energy",
+      "al_frac": 0.0,
+      "energy": 4.0,
+      "expected": 70794.57843841374
+    },
+    {
+      "name": "extrapolation_low_energy",
+      "al_frac": 0.0,
+      "energy": 2.0,
+      "expected": 49.30116056833157
+    },
+    {
+      "name": "extrapolation_high_al_frac",
+      "al_frac": 0.9,
+      "energy": 4.5,
+      "expected": 1020.6783171138945
+    },
+    {
+      "name": "mid_interval",
+      "al_frac": 0.29,
+      "energy": 3.6,
+      "expected": 1847.8497974222926
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 #include <cmath>
 
 #include "interpolation.h"
-#include "tests/interpolation_reference.h"
-#include "tests/test_helpers.h"
+#include "interpolation_reference.h"
+#include "test_helpers.h"
 
 namespace {
 

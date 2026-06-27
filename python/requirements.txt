@@ -1,0 +1,3 @@
+# Editable install with test dependencies (pytest).
+# Usage: pip install -r requirements.txt
+-e ".[dev]"

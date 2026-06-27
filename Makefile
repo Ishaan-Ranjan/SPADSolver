@@ -1,40 +1,13 @@
-CXX      = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -I.
-LDFLAGS  =
+.PHONY: all test clean python-test
 
-SRCS = GaussianElimination.cpp interpolation.cpp
-OBJS = $(SRCS:.cpp=.o)
-LIB  = libspadsolver.a
+all:
+	$(MAKE) -C cpp all
 
-TEST_INTERP_SRC = tests/test_interpolation.cpp
-TEST_INTERP_BIN = test_interpolation
-
-TEST_GE_SRC = tests/test_gaussian_elimination.cpp
-TEST_GE_BIN = test_gaussian_elimination
-
-.PHONY: all clean test test-interpolation test-gaussian-elimination
-
-all: $(LIB)
-
-$(LIB): $(OBJS)
-	ar rcs $@ $^
-
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(TEST_INTERP_BIN): $(TEST_INTERP_SRC) interpolation.o
-	$(CXX) $(CXXFLAGS) $(TEST_INTERP_SRC) interpolation.o -o $@
-
-$(TEST_GE_BIN): $(TEST_GE_SRC) GaussianElimination.o
-	$(CXX) $(CXXFLAGS) $(TEST_GE_SRC) GaussianElimination.o -o $@
-
-test: test-interpolation test-gaussian-elimination
-
-test-interpolation: $(TEST_INTERP_BIN)
-	./$(TEST_INTERP_BIN)
-
-test-gaussian-elimination: $(TEST_GE_BIN)
-	./$(TEST_GE_BIN)
+test:
+	$(MAKE) -C cpp test
 
 clean:
-	rm -f $(OBJS) $(LIB) $(TEST_INTERP_BIN) $(TEST_GE_BIN)
+	$(MAKE) -C cpp clean
+
+python-test:
+	cd python && python3 -m pip install -e ".[dev]" && python3 -m pytest

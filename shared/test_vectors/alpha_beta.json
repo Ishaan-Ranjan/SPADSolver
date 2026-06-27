@@ -1,0 +1,45 @@
+{
+  "defaults": {
+    "field": 3000000.0,
+    "temp": 298.0,
+    "tolerance": 0.001
+  },
+  "cases": [
+    {
+      "name": "alpha_gan_endpoint",
+      "al_frac": 0.0,
+      "fn": "alpha",
+      "expected": 51989286800.70123
+    },
+    {
+      "name": "alpha_algan_endpoint",
+      "al_frac": 0.65,
+      "fn": "alpha",
+      "expected": 34.427711486816406
+    },
+    {
+      "name": "beta_gan_endpoint",
+      "al_frac": 0.0,
+      "fn": "beta",
+      "expected": 340332155.5867305
+    },
+    {
+      "name": "beta_algan_endpoint",
+      "al_frac": 0.65,
+      "fn": "beta",
+      "expected": 5406.348825991154
+    },
+    {
+      "name": "alpha_midpoint",
+      "al_frac": 0.325,
+      "fn": "alpha",
+      "expected": 25994643417.564472
+    },
+    {
+      "name": "beta_midpoint",
+      "al_frac": 0.325,
+      "fn": "beta",
+      "expected": 170168780.96777824
+    }
+  ]
+}
