@@ -76,12 +76,33 @@ Or from the repository root:
 make python-test
 ```
 
+### Ray correctness tests (optional)
+
+With Ray installed, run parity tests that assert parallel results match serial code:
+
+```bash
+pytest -m ray
+```
+
+These live in `tests/test_ray_parity.py` and `tests/test_ray_tasks.py` (parallel test only).
+Without Ray, those tests are skipped; all other tests still run.
+
 ## Optional: parallel sweeps with Ray
 
 Requires `pip install -r requirements-ray.txt` (or `pip install -e ".[dev,ray]"`).
 
 ```bash
 python3 examples/parameter_sweep.py
+```
+
+### Ray performance benchmark
+
+Separate from pytest — measures serial vs Ray wall-clock time:
+
+```bash
+python3 benchmarks/benchmark_ray.py
+python3 benchmarks/benchmark_ray.py --al-fracs 50 --energies 50 --cpus 4
+python3 benchmarks/benchmark_ray.py --json
 ```
 
 Use the Ray helpers in application code:
@@ -100,7 +121,8 @@ Ray is optional — the core `spadsolver` package runs without it. See `spadsolv
 ```
 python/
 ├── spadsolver/          # package source
-├── tests/               # pytest suite
+├── tests/               # pytest suite (incl. test_ray_parity.py)
+├── benchmarks/          # Ray performance harness (not pytest)
 ├── examples/            # Ray parameter sweep example
 ├── requirements.txt     # dev install (editable + pytest)
 └── requirements-ray.txt # optional Ray dependency

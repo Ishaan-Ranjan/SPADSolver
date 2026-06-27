@@ -19,3 +19,6 @@ include = ["spadsolver*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "ray: tests that require Ray (run with pytest -m ray)",
+]
