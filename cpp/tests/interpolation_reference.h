@@ -60,7 +60,6 @@ inline double gamma_exp_at_index(int index, double energy) {
     const double sampled_energies[6][4] = {
         {2.25, 3.125, 3.25, 3.5},   {2.625, 3.25, 3.5, 3.7}, {2.25, 3, 3.5, 3.875},
         {2.5, 3.5, 3.75, 4.125},   {2.25, 3.5, 4, 4.625},    {2.875, 4, 4.75, 5.5}};
-    const double sampled_abs_asy[6] = {4.85, 4.85, 4.8, 4.8, 4.8, 4.9};
     const double sampled_abs_exps[6][4] = {
         {1.85, 2.4, 2.7, 4.85}, {2.4, 2.84, 3.17, 4.85}, {2, 2.78, 2.95, 4.8},
         {2.3, 2.95, 3.3, 4.8},  {1.95, 2.48, 2.9, 4.8},  {2.48, 2.85, 3.3, 4.9}};
@@ -82,12 +81,15 @@ inline double gamma_exp_at_index(int index, double energy) {
                                        sampled_abs_exps[index][j + 1]);
             break;
         }
-        gamma_exp = sampled_abs_asy[index];
+        gamma_exp = lininterpolate(energy, sampled_energies[index][2],
+                                   sampled_abs_exps[index][2],
+                                   sampled_energies[index][3],
+                                   sampled_abs_exps[index][3]);
     }
     return gamma_exp;
 }
 
-inline double gamma(double al_frac, double energy) {
+inline double gamma_low_energy(double al_frac, double energy) {
     const double mole_fracs[6] = {0, 0.11, 0.20, 0.38, 0.5, 0.86};
 
     double gamma_final = 0.0;
@@ -113,6 +115,46 @@ inline double gamma(double al_frac, double energy) {
         break;
     }
     return gamma_final;
+}
+
+inline double gamma_high_energy(double al_frac, double energy) {
+    const double mole_fracs[5] = {0, 0.27, 0.34, 0.38, 1};
+    const double sampled_energies[4][2] = {{4.1, 4.7}, {4.5, 5.1}, {4.6, 5.1},
+                                           {4.7, 5.3}};
+    const double sample_abs1 = 14e4;
+    const double sample_abs2 = 19e4;
+
+    for (int i = 0; i < 4; ++i) {
+        if ((mole_fracs[i] <= al_frac && al_frac <= mole_fracs[i + 1]) &&
+            (al_frac < 0.38)) {
+            const double gamma1 = lininterpolate(energy, sampled_energies[i][0],
+                                                 sample_abs1, sampled_energies[i][1],
+                                                 sample_abs2);
+            const double gamma2 =
+                lininterpolate(energy, sampled_energies[i + 1][0], sample_abs1,
+                               sampled_energies[i + 1][1], sample_abs2);
+            return lininterpolate(al_frac, mole_fracs[i], gamma1, mole_fracs[i + 1],
+                                  gamma2);
+        }
+        if ((0.38 <= al_frac) && (i == 3)) {
+            const double gamma1 =
+                lininterpolate(energy, sampled_energies[i - 1][0], sample_abs1,
+                               sampled_energies[i - 1][1], sample_abs2);
+            const double gamma2 = lininterpolate(energy, sampled_energies[i][0],
+                                                 sample_abs1, sampled_energies[i][1],
+                                                 sample_abs2);
+            return lininterpolate(al_frac, mole_fracs[i - 1], gamma1, mole_fracs[i],
+                                  gamma2);
+        }
+    }
+    return 0.0;
+}
+
+inline double gamma(double al_frac, double energy) {
+    if (energy > 4.0) {
+        return gamma_high_energy(al_frac, energy);
+    }
+    return gamma_low_energy(al_frac, energy);
 }
 
 }  // namespace reference

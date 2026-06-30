@@ -57,13 +57,12 @@ double beta(double alFrac, double Field, double Temp){
 
 //ABSORPTIONS
 
-double gamma(double AlFrac, double Energy){
+double gammaLowEnergy(double AlFrac, double Energy){
     //We are going to a log based interpolation, meaning we interpolate to find an exponent, and use ten as the base
     const double mole_fracs[6] = {0, 0.11, 0.20, 0.38, 0.5, 0.86};
 
     //Graphs look like they can be separated into 3 lines, so we will need 4 sampled energies/abs coeff for each mole_frac data point
     const double sampled_energies[6][4] = {{2.25,3.125,3.25,3.5},{2.625,3.25,3.5,3.7},{2.25,3,3.5,3.875},{2.5,3.5,3.75,4.125},{2.25,3.5,4,4.625},{2.875,4,4.75,5.5}};
-    const double sampled_abs_asy[6] = {4.85,4.85,4.8,4.8,4.8,4.9}; //The absorbtion coeff level off above the last energy sample
     const double sampled_abs_exps[6][4] = {{1.85,2.4,2.7,4.85},{2.4,2.84,3.17,4.85},{2,2.78,2.95,4.8},{2.3,2.95,3.3,4.8},{1.95,2.48,2.9,4.8},{2.48,2.85,3.3,4.9}};
 
     double gamma_exp1;
@@ -98,7 +97,7 @@ double gamma(double AlFrac, double Energy){
                 gamma_exp1 = lininterpolate(Energy, sampled_energies[i][j], sampled_abs_exps[i][j], sampled_energies[i][j+1], sampled_abs_exps[i][j+1]);
                 break;
             } 
-            gamma_exp1 = sampled_abs_asy[i]; //If the energy is above some threshold, set it to the asymptotic value
+            gamma_exp1 = lininterpolate(Energy, sampled_energies[i][2], sampled_abs_exps[i][2], sampled_energies[i][3], sampled_abs_exps[i][3]); //If the energy is above some threshold, extrapolate
         } 
 
         for (int k = 0; k<3; k++){//For the upper bound
@@ -111,7 +110,7 @@ double gamma(double AlFrac, double Energy){
                 gamma_exp2 = lininterpolate(Energy, sampled_energies[i+1][k], sampled_abs_exps[i+1][k], sampled_energies[i+1][k+1], sampled_abs_exps[i+1][k+1]);
                 break;
             }
-            gamma_exp2 = sampled_abs_asy[i+1]; //If energy is above a threshold
+            gamma_exp2 = lininterpolate(Energy, sampled_energies[i+1][2], sampled_abs_exps[i+1][2], sampled_energies[i+1][3], sampled_abs_exps[i+1][3]); //If energy is above a threshold, extrapolate
         }
 
         gamma_final = lininterpolate(AlFrac, molLow, gamma_exp1, molHigh, gamma_exp2); //Calculates the final exponent
@@ -119,4 +118,41 @@ double gamma(double AlFrac, double Energy){
         break;
     }
     return gamma_final;
+}
+
+double gammaHighEnergy(double AlFrac, double Energy){
+    double mole_fracs[5] = {0, 0.27, 0.34, 0.38, 1};
+
+    double sampled_energies[4][2] = {{4.1, 4.7}, {4.5, 5.1}, {4.6, 5.1}, {4.7, 5.3}};
+
+    double gamma1;
+    double gamma2;
+
+    double sample_abs1 = 14e4; // per cm
+    double sample_abs2 = 19e4; // per cm
+
+    for(int i = 0; i < 4; i++){
+        //This section of the code interpolates absorption values between mole fractions
+        if ((mole_fracs[i] <= AlFrac && AlFrac <= mole_fracs[i+1]) && (AlFrac < 0.38)){
+            gamma1 = lininterpolate(Energy, sampled_energies[i][0], sample_abs1, sampled_energies[i][1], sample_abs2);
+            gamma2 = lininterpolate(Energy, sampled_energies[i+1][0], sample_abs1, sampled_energies[i+1][1], sample_abs2);
+            return lininterpolate(AlFrac, mole_fracs[i], gamma1, mole_fracs[i+1], gamma2);
+        }
+        else if ((0.38 <= AlFrac) && (i == 3)){
+        //This section of the code extrapolates to AlN since absorptions past its bandgap are unknown from the paper
+            gamma1 = lininterpolate(Energy, sampled_energies[i-1][0], sample_abs1, sampled_energies[i-1][1], sample_abs2);
+            gamma2 = lininterpolate(Energy, sampled_energies[i][0], sample_abs1, sampled_energies[i][1], sample_abs2);
+            return lininterpolate(AlFrac, mole_fracs[i-1], gamma1, mole_fracs[i], gamma2); 
+        }
+    }
+    return 0;
+}
+
+double gamma(double AlFrac, double Energy){
+    if (Energy > 4){
+        return gammaHighEnergy(AlFrac, Energy);
+    }
+    else{
+        return gammaLowEnergy(AlFrac, Energy);
+    }
 }
